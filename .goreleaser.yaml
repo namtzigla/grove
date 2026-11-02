@@ -77,3 +77,9 @@ homebrew_casks:
       bash: completions/grove.bash
       zsh: completions/grove.zsh
       fish: completions/grove.fish
+    # The binary is not notarized: without this, macOS kills it with SIGKILL
+    # on first run and moves it to the Trash. Strip the quarantine flag.
+    hooks:
+      post:
+        install_steps: |
+          run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/grove"]
