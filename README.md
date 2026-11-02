@@ -18,11 +18,20 @@ and shell loops; `--json` prints one JSON object per line.
 
 ## Install
 
+macOS (Homebrew cask from the personal tap, completions included):
+
+```fish
+brew install --cask namtzigla/tap/grove
+```
+
+Anywhere with Go (then install completions yourself):
+
 ```fish
 go install github.com/namtzigla/grove@latest   # or: cd grove; go install .
 grove completion fish > ~/.config/fish/completions/grove.fish
 ```
 
+Linux binaries are attached to every [GitHub release](https://github.com/namtzigla/grove/releases).
 Requires `git`, plus `gh` and/or `glab` logged in to the hosts you use.
 
 ## Config
@@ -198,3 +207,25 @@ Only first-level directories under the root that are configured hosts or
 contain a dot (`github.com`, `gitlab.example.com`) are scanned, so unrelated
 folders like `~/dev/tmp` are ignored. A directory containing `.git` is a repo;
 scanning does not descend into it, hidden directories or `node_modules`.
+
+## Releasing
+
+Releases are cut by tag. `.github/workflows/release.yml` runs GoReleaser
+(`.goreleaser.yaml`), which builds darwin/linux binaries, publishes the GitHub
+release with checksums, and commits the Homebrew cask into
+`namtzigla/homebrew-tap` (`Casks/grove.rb`).
+
+```fish
+git tag v0.2.0; and git push origin v0.2.0
+```
+
+One-time setup:
+
+1. The grove repo must be public (Homebrew downloads release tarballs anonymously).
+2. Create the tap repo: `grove create github.com/namtzigla/homebrew-tap --visibility public --init --default-branch main`.
+3. Create a fine-grained GitHub PAT with *Contents: read and write* on `homebrew-tap`
+   and store it as the `TAP_GITHUB_TOKEN` secret of the grove repo
+   (`gh secret set TAP_GITHUB_TOKEN -R namtzigla/grove`).
+
+Dry run locally without publishing: `goreleaser release --snapshot --clean`
+(binaries land in `dist/`).

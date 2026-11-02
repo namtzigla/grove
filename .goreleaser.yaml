@@ -1,0 +1,77 @@
+# Release pipeline: `git tag vX.Y.Z && git push origin vX.Y.Z` triggers
+# .github/workflows/release.yml, which runs `goreleaser release`.
+# It builds darwin/linux binaries, publishes a GitHub release and writes the
+# Homebrew cask into github.com/namtzigla/homebrew-tap (Casks/grove.rb):
+#   brew install --cask namtzigla/tap/grove
+# Local dry run: goreleaser release --snapshot --clean
+version: 2
+
+project_name: grove
+
+# This machine also has GITLAB_TOKEN set; releases go to GitHub.
+force_token: github
+
+before:
+  hooks:
+    - go mod tidy
+    - mkdir -p completions
+    - sh -c "go run . completion bash > completions/grove.bash"
+    - sh -c "go run . completion zsh  > completions/grove.zsh"
+    - sh -c "go run . completion fish > completions/grove.fish"
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos: [darwin, linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - AGENTS.md
+      - completions/*
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  github:
+    owner: namtzigla
+    name: grove
+
+# Homebrew cask (macOS). Linux users install from the release tarball or
+# `go install github.com/namtzigla/grove@latest`.
+homebrew_casks:
+  - name: grove
+    repository:
+      owner: namtzigla
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    directory: Casks
+    homepage: https://github.com/namtzigla/grove
+    description: Manage a tree of git clones, grouped worktrees, issues, MRs and CI across GitHub and GitLab
+    license: MIT
+    commit_author:
+      name: goreleaser-bot
+      email: bot@goreleaser.com
+    commit_msg_template: "grove {{ .Tag }}"
+    dependencies:
+      - formula: git
+    completions:
+      bash: completions/grove.bash
+      zsh: completions/grove.zsh
+      fish: completions/grove.fish
