@@ -227,5 +227,8 @@ One-time setup:
    and store it as the `TAP_GITHUB_TOKEN` secret of the grove repo
    (`gh secret set TAP_GITHUB_TOKEN -R namtzigla/grove`).
 
-Dry run locally without publishing: `goreleaser release --snapshot --clean`
-(binaries land in `dist/`).
+Until `TAP_GITHUB_TOKEN` exists the workflow still publishes the GitHub
+release but skips the cask (`--skip=homebrew`); a local
+`goreleaser release --clean` from the tagged commit then does the full job,
+using `GITHUB_TOKEN` for the tap. Dry run without publishing:
+`goreleaser release --snapshot --clean` (binaries land in `dist/`).
