@@ -25,7 +25,8 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean
+          # Without the tap token, publish the release but skip the cask.
+          args: release --clean ${{ secrets.TAP_GITHUB_TOKEN == '' && '--skip=homebrew' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
