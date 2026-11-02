@@ -87,6 +87,7 @@ the effective configuration.
 | `mr ls\|view\|new\|ready\|merge [ref]` | MRs / PRs; ref defaults to the current branch's open MR        |
 | `ci status\|wait`             | latest pipeline / checks for a branch or MR                         |
 | `context`                    | repo, branch, worktree, project, issue, MR of the cwd (for agents)  |
+| `skill show\|install`        | the grove skill (SKILL.md) for Claude Code, Antigravity and other agents |
 
 ### Repo specs
 
@@ -186,7 +187,17 @@ grove work rm feature-x --delete-branch
 
 `grove.json` in the project directory records every worktree with its repo,
 branch, base, issue and MR, so tools can resume where they left off
-(`grove work info`). See AGENTS.md for the guidance given to AI tools.
+(`grove work info`).
+
+## AI agents
+
+`grove skill install` writes the bundled skill (`skills/grove/SKILL.md`,
+[Agent Skills](https://agentskills.io) format) into the skills directories of
+Claude Code (`~/.claude/skills`), Antigravity (`~/.gemini/config/skills`,
+`~/.gemini/antigravity-cli/skills`) and the vendor-neutral `~/.agents/skills`.
+`--for claude` limits the targets, `--project` installs into the current
+project (`.claude/skills`, `.agents/skills`). AGENTS.md is the same guidance
+in prose, for tools that read that file.
 
 ## Output and exit codes
 

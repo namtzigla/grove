@@ -127,6 +127,7 @@ GITLAB_HOST adds a gitlab host.`,
 		newMRCmd(a),
 		newCICmd(a),
 		newContextCmd(a),
+		newSkillCmd(a),
 	)
 	return root
 }
